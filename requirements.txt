@@ -1,0 +1,4 @@
+Django==2.1.2
+django-appconf==1.0.2
+django-model-utils==3.1.2
+pytz==2018.5
