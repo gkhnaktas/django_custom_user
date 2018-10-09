@@ -2,10 +2,10 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import send_mail
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from .conf import settings
+from .utils import generate_uid, get_date_from_uid
 from .managers import UserInheritanceManager, UserManager
 
 
@@ -22,7 +22,6 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         _('active'), default=USERS_AUTO_ACTIVATE,
         help_text=_('Designates whether this user should be treated as '
                     'active. Unselect this instead of deleting accounts.'))
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     user_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True, editable=False)
 
     objects = UserInheritanceManager()
@@ -35,14 +34,6 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('User')
         verbose_name_plural = _('Users')
         abstract = True
-
-    def get_full_name(self):
-        """ Return the email."""
-        return self.email
-
-    def get_short_name(self):
-        """ Return the email."""
-        return self.email
 
     def email_user(self, subject, message, from_email=None):
         """ Send an email to this User."""
@@ -59,11 +50,20 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
 
 
 class User(AbstractUser):
+    uid = models.CharField(
+        _('uid'), max_length=9, default=generate_uid(), db_index=True)
+    first = models.CharField(_('First name'), max_length=16, blank=True, default='')
+    last = models.CharField(_('Last name'), max_length=16, blank=True, default='')
 
-    """
-    Concrete class of AbstractUser.
-    Use this if you don't need to extend User.
-    """
+    def get_full_name(self):
+        return f'{self.first} {self.last}'
+
+    def get_short_name(self):
+        return self.first
+
+    def date_joined(self):
+        return get_date_from_uid(self.uid)
+    date_joined.short_description = _('Date joined')
 
     class Meta(AbstractUser.Meta):
         swappable = 'AUTH_USER_MODEL'

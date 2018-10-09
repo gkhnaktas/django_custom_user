@@ -3,3 +3,4 @@ lib64
 *.mo
 __pycache__/
 *.py[cod]
+db.sqlite3

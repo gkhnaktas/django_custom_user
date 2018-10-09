@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
         is_active = extra_fields.pop('is_active', users_auto_activate)
         user = self.model(email=email, is_staff=is_staff, is_active=is_active,
                           is_superuser=is_superuser, last_login=now,
-                          date_joined=now, **extra_fields)
+                          **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user

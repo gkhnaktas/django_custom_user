@@ -1,5 +1,6 @@
 from appconf import AppConf
 from django.conf import settings
+from datetime import datetime
 
 
 class UsersAppConf(AppConf):
@@ -27,3 +28,14 @@ class UsersAppConf(AppConf):
 
     class Meta:
         prefix = 'users'
+
+
+UID_START_DATE = datetime(2008, 4, 19)
+UID_ALPHABET = ['y', 'L', 'J', 'a', 's', '6', 'E', '7',
+                'I', 'e', 'U', 'H', 'A', '1', 'b', 'R',
+                'Y', '8', 'k', 'g', 'r', 'o', 'T', 'p',
+                'G', '4', 'P', '0', '5', 't', 'M', 'j',
+                'i', 'f', '9', 'F', 'D', 'x', 'c', 'N',
+                'O', 'C', 'n', 'q', 'u', '2', 'B', 'z',
+                'v', 'Q', 'h', 'w', 'S', 'm', 'X', 'V',
+                'Z', 'K', '3', 'W', 'd', 'l']

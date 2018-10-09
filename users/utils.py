@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.mail import EmailMultiAlternatives
@@ -9,7 +9,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import base36_to_int, int_to_base36
 
 from .compat import urlsafe_base64_encode
-from .conf import settings
+from .conf import settings, UID_START_DATE, UID_ALPHABET
 
 try:
     from django.contrib.sites.shortcuts import get_current_site
@@ -137,3 +137,35 @@ def send_activation_email(
             email_message.attach_alternative(html_email, 'text/html')
 
         email_message.send()
+
+
+def _timediff():
+    return int((datetime.now() - UID_START_DATE).total_seconds() * 10**6)
+
+
+def generate_uid():
+    base = _timediff()
+    alphabet_length = len(UID_ALPHABET)
+    result = ''
+
+    while base > alphabet_length:
+        result += UID_ALPHABET[base % alphabet_length]
+        base = base // alphabet_length
+    else:
+        result += UID_ALPHABET[base]
+
+    return result[::-1]
+
+
+def reverse_uid(uid):
+    result = 0
+
+    for i in range(len(uid)):
+        power = len(uid) - 1 - i
+        result += len(UID_ALPHABET)**power * UID_ALPHABET.index(uid[i])
+
+    return result
+
+
+def get_date_from_uid(uid):
+    return UID_START_DATE + timedelta(seconds=reverse_uid(uid) / 10**6)
